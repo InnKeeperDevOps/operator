@@ -1,0 +1,6 @@
+apiVersion: cicd.synload.com/v1alpha1
+kind: BuildDeploy
+metadata:
+  name: builddeploy-sample
+spec:
+  # TODO(user): Add fields here

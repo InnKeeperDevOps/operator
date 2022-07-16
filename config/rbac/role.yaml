@@ -1,0 +1,33 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - cicd.synload.com
+  resources:
+  - builddeploys
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cicd.synload.com
+  resources:
+  - builddeploys/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cicd.synload.com
+  resources:
+  - builddeploys/status
+  verbs:
+  - get
+  - patch
+  - update

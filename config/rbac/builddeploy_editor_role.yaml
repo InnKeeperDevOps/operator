@@ -1,0 +1,24 @@
+# permissions for end users to edit builddeploys.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: builddeploy-editor-role
+rules:
+- apiGroups:
+  - cicd.synload.com
+  resources:
+  - builddeploys
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cicd.synload.com
+  resources:
+  - builddeploys/status
+  verbs:
+  - get
