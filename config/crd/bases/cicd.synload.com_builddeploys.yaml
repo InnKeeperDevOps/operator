@@ -41,12 +41,8 @@ spec:
                 properties:
                   dockerfile:
                     type: string
-                  tag:
-                    type: string
                   work_dir:
                     type: string
-                required:
-                - dockerfile
                 type: object
               git:
                 properties:
@@ -64,9 +60,15 @@ spec:
                     type: string
                   secret:
                     type: string
+                  tag:
+                    type: string
+                  version:
+                    type: string
                 required:
                 - host
                 - secret
+                - tag
+                - version
                 type: object
             required:
             - git

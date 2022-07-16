@@ -103,9 +103,17 @@ func (r *BuildDeployReconciler) createBuildJob(deploy *cicdv1alpha1.BuildDeploy)
 			Name:  "REGISTRY_HOST",
 			Value: deploy.Spec.Publish.Host,
 		},
+		{
+			Name:  "DOCKER_TAG",
+			Value: deploy.Spec.Publish.Tag,
+		},
+		{
+			Name:  "DOCKER_VERSION",
+			Value: deploy.Spec.Publish.Version,
+		},
 	}
 
-	if deploy.Spec.Publish.Secret !="" {
+	if deploy.Spec.Publish.Secret != "" {
 		envars = append(envars, corev1.EnvVar{
 			Name: "REGISTRY_USERNAME",
 			ValueFrom: &corev1.EnvVarSource{
@@ -117,20 +125,33 @@ func (r *BuildDeployReconciler) createBuildJob(deploy *cicdv1alpha1.BuildDeploy)
 				},
 			},
 		},
-		corev1.EnvVar{
-			Name: "REGISTRY_PASSWORD",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: deploy.Spec.Publish.Secret,
+			corev1.EnvVar{
+				Name: "REGISTRY_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: deploy.Spec.Publish.Secret,
+						},
+						Key: "password",
 					},
-					Key: "password",
 				},
-			},
+			})
+	}
+
+	if deploy.Spec.Build.Dockerfile != "" {
+		envars = append(envars, corev1.EnvVar{
+			Name:  "DOCKERFILE",
+			Value: deploy.Spec.Build.Dockerfile,
+		})
+	}
+	if deploy.Spec.Build.WorkDir != "" {
+		envars = append(envars, corev1.EnvVar{
+			Name:  "WORKDIR",
+			Value: deploy.Spec.Build.WorkDir,
 		})
 	}
 
-	if deploy.Spec.Git.Secret!="" {
+	if deploy.Spec.Git.Secret != "" {
 		volumes = append(volumes, corev1.Volume{
 			Name: deploy.Spec.Git.Secret,
 			VolumeSource: corev1.VolumeSource{
@@ -160,10 +181,10 @@ func (r *BuildDeployReconciler) createBuildJob(deploy *cicdv1alpha1.BuildDeploy)
 				Spec: corev1.PodSpec{
 					Volumes: volumes,
 					Containers: []corev1.Container{{
-						Name:  deploy.GetBuilderName(),
-						Image: "ghcr.io/synload/git-buildah:main",
+						Name:         deploy.GetBuilderName(),
+						Image:        "ghcr.io/synload/git-buildah:main",
 						VolumeMounts: volumeMounts,
-						Env: envars,
+						Env:          envars,
 					}},
 					RestartPolicy: corev1.RestartPolicyNever,
 				},

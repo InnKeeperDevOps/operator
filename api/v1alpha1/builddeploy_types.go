@@ -29,13 +29,13 @@ type GitDetails struct {
 	Secret string `json:"secret,omitempty"`
 }
 type DockerBuild struct {
-	Dockerfile string `json:"dockerfile"`
+	Dockerfile string `json:"dockerfile,omitempty"`
 	WorkDir    string `json:"work_dir,omitempty"`
 }
 type DockerPublish struct {
-	Secret string `json:"secret"`
+	Secret  string `json:"secret"`
 	Host    string `json:"host"`
-	Tag string `json:"tag"`
+	Tag     string `json:"tag"`
 	Version string `json:"version"`
 }
 
