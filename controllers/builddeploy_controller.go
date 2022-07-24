@@ -18,7 +18,10 @@ package controllers
 
 import (
 	"context"
+	"github.com/Synload/build-deploy-operator/buildstage"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
+
 	//appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -66,20 +69,35 @@ func (r *BuildDeployReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	buildDeploy := &cicdv1alpha1.BuildDeploy{}
 	err = r.Get(ctx, req.NamespacedName, buildDeploy)
 	if err == nil {
-		println(buildDeploy.Name)
-		jobExists := &batchv1.Job{}
-		err = r.Client.Get(ctx, types.NamespacedName{Name: buildDeploy.GetBuilderName(), Namespace: "git-builder"}, jobExists)
+		println("Handling " + buildDeploy.Name)
+		stage := buildstage.BuildStage{Deploy: buildDeploy, Client: r.Client}
+		stage.Route(ctx)
+	} else {
+		// cleanup
+		buildDeploy.Name = req.Name
+		buildDeploy.Namespace = req.Namespace
+		println("deleting jobs for " + req.Name)
+		job := &batchv1.Job{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      buildDeploy.GetBuilderName(),
+				Namespace: "git-builder",
+			},
+		}
+		deleteOpt := metav1.DeletePropagationBackground
+		err = r.Delete(ctx, job, &client.DeleteOptions{
+			PropagationPolicy: &deleteOpt,
+		})
 		if err != nil {
 			println(err.Error())
-			err = r.Client.Create(ctx, r.createBuildJob(buildDeploy))
-			if err != nil {
-				println(err.Error())
-			}
-		} else {
-			println(jobExists.Status.Succeeded)
 		}
+		return ctrl.Result{}, nil
 	}
-	return ctrl.Result{}, err
+
+	return ctrl.Result{RequeueAfter: time.Second * 25}, nil
+}
+
+func (r *BuildDeployReconciler) updateStatus(deploy *cicdv1alpha1.BuildDeploy) {
+
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -87,109 +105,4 @@ func (r *BuildDeployReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cicdv1alpha1.BuildDeploy{}).
 		Complete(r)
-}
-
-func (r *BuildDeployReconciler) createBuildJob(deploy *cicdv1alpha1.BuildDeploy) *batchv1.Job {
-	var retries int32 = 0
-	volumes := []corev1.Volume{}
-	volumeMounts := []corev1.VolumeMount{}
-
-	envars := []corev1.EnvVar{
-		{
-			Name:  "GIT_REPO",
-			Value: deploy.Spec.Git.URI,
-		},
-		{
-			Name:  "REGISTRY_HOST",
-			Value: deploy.Spec.Publish.Host,
-		},
-		{
-			Name:  "DOCKER_TAG",
-			Value: deploy.Spec.Publish.Tag,
-		},
-		{
-			Name:  "DOCKER_VERSION",
-			Value: deploy.Spec.Publish.Version,
-		},
-	}
-
-	if deploy.Spec.Publish.Secret != "" {
-		envars = append(envars, corev1.EnvVar{
-			Name: "REGISTRY_USERNAME",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: deploy.Spec.Publish.Secret,
-					},
-					Key: "username",
-				},
-			},
-		},
-			corev1.EnvVar{
-				Name: "REGISTRY_PASSWORD",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: deploy.Spec.Publish.Secret,
-						},
-						Key: "password",
-					},
-				},
-			})
-	}
-
-	if deploy.Spec.Build.Dockerfile != "" {
-		envars = append(envars, corev1.EnvVar{
-			Name:  "DOCKERFILE",
-			Value: deploy.Spec.Build.Dockerfile,
-		})
-	}
-	if deploy.Spec.Build.WorkDir != "" {
-		envars = append(envars, corev1.EnvVar{
-			Name:  "WORKDIR",
-			Value: deploy.Spec.Build.WorkDir,
-		})
-	}
-
-	if deploy.Spec.Git.Secret != "" {
-		volumes = append(volumes, corev1.Volume{
-			Name: deploy.Spec.Git.Secret,
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
-					SecretName: deploy.Spec.Git.Secret,
-				},
-			},
-		})
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      deploy.Spec.Git.Secret,
-			MountPath: "/ssh/key",
-			ReadOnly:  true,
-		})
-	}
-	return &batchv1.Job{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      deploy.GetBuilderName(),
-			Namespace: "git-builder",
-		},
-		Spec: batchv1.JobSpec{
-			BackoffLimit: &retries,
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      deploy.GetBuilderName(),
-					Namespace: "git-builder",
-				},
-				Spec: corev1.PodSpec{
-					Volumes: volumes,
-					Containers: []corev1.Container{{
-						Name:         deploy.GetBuilderName(),
-						Image:        "ghcr.io/synload/git-buildah:main",
-						VolumeMounts: volumeMounts,
-						Env:          envars,
-					}},
-					RestartPolicy: corev1.RestartPolicyNever,
-				},
-			},
-		},
-		Status: batchv1.JobStatus{},
-	}
 }

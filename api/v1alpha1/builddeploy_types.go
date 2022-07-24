@@ -17,20 +17,20 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v12 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type GitDetails struct {
 	URI string `json:"uri"`
 	// Secret contains a ssh key to connect to private repos
 	Secret string `json:"secret,omitempty"`
+	Commit string `json:"commit,omitempty"`
+	Branch string `json:"branch,omitempty"`
 }
 type DockerBuild struct {
 	Dockerfile string `json:"dockerfile,omitempty"`
-	WorkDir    string `json:"work_dir,omitempty"`
+	WorkDir    string `json:"workdir,omitempty"`
 }
 type DockerPublish struct {
 	Secret  string `json:"secret"`
@@ -39,31 +39,55 @@ type DockerPublish struct {
 	Version string `json:"version"`
 }
 
-// BuildDeploySpec defines the desired state of BuildDeploy
+type DeployParams struct {
+	Env       []v12.EnvVar      `json:"env,omitempty"`
+	Mounts    []v12.VolumeMount `json:"mounts,omitempty"`
+	Volumes   []v12.Volume      `json:"volumes,omitempty"`
+	Namespace string            `json:"namespace,omitempty"`
+	Name      string            `json:"name"`
+}
+
 type BuildDeploySpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 	Build   DockerBuild   `json:"build,omitempty"`
 	Git     GitDetails    `json:"git"`
 	Publish DockerPublish `json:"publish"`
+	Deploy  *DeployParams `json:"deploy"`
+}
+
+type RegistryStatus struct {
+	Host string `json:"host,omitempty"`
+	Tag  string `json:"tag,omitempty"`
+}
+
+type GitStatus struct {
+	Commit string `json:"commit,omitempty"`
+	Branch string `json:"branch,omitempty"`
+	Date   int    `json:"date,omitempty"`
+	Author string `json:"author,omitempty"`
 }
 
 type Deployed struct {
-	Pod string `json:"pod"`
+	Pod      string         `json:"pod,omitempty"`
+	Git      GitStatus      `json:"git,omitempty"`
+	Complete bool           `json:"complete,omitempty"`
+	Registry RegistryStatus `json:"registry,omitempty"`
+	Version  string         `json:"version,omitempty"`
+}
+type Built struct {
+	Git      GitStatus      `json:"git,omitempty"`
+	Complete bool           `json:"complete,omitempty"`
+	Registry RegistryStatus `json:"registry,omitempty"`
+	Version  string         `json:"version,omitempty"`
 }
 
-// BuildDeployStatus defines the observed state of BuildDeploy
 type BuildDeployStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-	Deployed Deployed `json:"deployed"`
-	Built    bool     `json:"built"`
+	Deployed *Deployed `json:"deployed,omitempty"`
+	Built    *Built    `json:"built,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// BuildDeploy is the Schema for the builddeploys API
 type BuildDeploy struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -74,7 +98,6 @@ type BuildDeploy struct {
 
 //+kubebuilder:object:root=true
 
-// BuildDeployList contains a list of BuildDeploy
 type BuildDeployList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
