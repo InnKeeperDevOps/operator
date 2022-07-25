@@ -172,6 +172,76 @@ func (b *BuildStage) PullSecret(ctx context.Context, namespace string) error {
 	return nil
 }
 
+func (b *BuildStage) HandleDaemonSet(ctx context.Context) error {
+	daemonSetExists := &v12.DaemonSet{}
+	err := b.Get(ctx, types.NamespacedName{Name: b.Deploy.Spec.Deploy.CronJob.Name, Namespace: b.Deploy.Spec.Deploy.CronJob.Namespace}, daemonSetExists)
+	if err == nil {
+		println("Updating daemonSet, " + daemonSetExists.Name)
+		err = b.MergeDaemonSetToSpec(daemonSetExists)
+		if err != nil {
+			return err
+		}
+		err = b.UpdateDaemonSet(ctx, daemonSetExists)
+	} else {
+		println("Creating new daemonSet,  " + b.Deploy.Name)
+		err = b.CreateDaemonSet(ctx)
+	}
+	return err
+}
+
+func (b *BuildStage) HandleCronJob(ctx context.Context) error {
+	cronJobExists := &batchv1.CronJob{}
+	err := b.Get(ctx, types.NamespacedName{Name: b.Deploy.Spec.Deploy.CronJob.Name, Namespace: b.Deploy.Spec.Deploy.CronJob.Namespace}, cronJobExists)
+	if err == nil {
+		println("Updating cronjob, " + cronJobExists.Name)
+		err = b.MergeCronJobToSpec(cronJobExists)
+		if err != nil {
+			return err
+		}
+		err = b.UpdateCronJob(ctx, cronJobExists)
+	} else {
+		println("Creating new cronjob,  " + b.Deploy.Name)
+		err = b.CreateCronJob(ctx)
+	}
+	return err
+}
+
+func (b *BuildStage) HandleDeployment(ctx context.Context) error {
+	deploymentExists := &v12.Deployment{}
+	err := b.Get(ctx, types.NamespacedName{Name: b.Deploy.Spec.Deploy.Deployment.Name, Namespace: b.Deploy.Spec.Deploy.Deployment.Namespace}, deploymentExists)
+	if err == nil {
+		println("Updating deployment, " + deploymentExists.Name)
+		err = b.MergeDeploymentToSpec(deploymentExists)
+		if err != nil {
+			return err
+		}
+		err = b.UpdateDeployment(ctx, deploymentExists)
+	} else {
+		println("Creating new deployment,  " + b.Deploy.Name)
+		err = b.CreateDeployment(ctx)
+	}
+	return err
+}
+
+func (b *BuildStage) HandleSimpleDeployment(ctx context.Context) error {
+	deploymentExists := &v12.Deployment{}
+	err := b.Get(ctx, types.NamespacedName{Name: b.Deploy.Spec.Deploy.Name, Namespace: b.Deploy.Spec.Deploy.Namespace}, deploymentExists)
+	if err == nil {
+		println("Updating simple deployment, " + deploymentExists.Name)
+		b.UpdateDeploymentToSpec(deploymentExists)
+		err = b.UpdateDeployment(ctx, deploymentExists)
+		if err != nil {
+			return err
+		}
+	} else {
+		println("Creating new simple deployment,  " + b.Deploy.Name)
+		deployment := b.CreateSimpleDeployment()
+		err = b.Create(ctx, deployment)
+
+	}
+	return err
+}
+
 func (b *BuildStage) Deployer(ctx context.Context) (ctrl.Result, error) {
 	println("In Deployer Stage")
 
@@ -195,21 +265,28 @@ func (b *BuildStage) Deployer(ctx context.Context) (ctrl.Result, error) {
 			}
 		}
 
-		deploymentExists := &v12.Deployment{}
-		err = b.Get(ctx, types.NamespacedName{Name: b.Deploy.Spec.Deploy.Name, Namespace: b.Deploy.Spec.Deploy.Namespace}, deploymentExists)
-		if err == nil {
-			println("Updating deployment, " + deploymentExists.Name)
-			b.UpdateDeploymentToSpec(b.Deploy, b.Deploy.Spec.Deploy, deploymentExists)
-			b.UpdateDeployment(ctx, deploymentExists)
-
-			err = b.Update(ctx, deploymentExists)
-		} else {
-			println("Creating new deployment,  " + b.Deploy.Name)
-			deployment := b.CreateDeployment(b.Deploy, b.Deploy.Spec.Deploy)
-			err = b.Create(ctx, deployment)
+		switch {
+		case b.Deploy.Spec.Deploy.Deployment != nil:
+			println("Handling " + b.Deploy.Name + " as deployment")
+			err = b.HandleDeployment(ctx)
+			break
+		case b.Deploy.Spec.Deploy.CronJob != nil:
+			println("Handling " + b.Deploy.Name + " as cronjob")
+			err = b.HandleCronJob(ctx)
+			break
+		case b.Deploy.Spec.Deploy.DaemonSet != nil:
+			println("Handling " + b.Deploy.Name + " as daemonset")
+			err = b.HandleDaemonSet(ctx)
+			break
+		default:
+			println("Handling " + b.Deploy.Name + " as simple deployment")
+			err = b.HandleSimpleDeployment(ctx)
+			break
 		}
+
 		if err != nil {
 			println(err.Error())
+			return ctrl.Result{RequeueAfter: time.Second * 20}, nil
 		} else {
 			b.Deploy.Status.Deployed = &v1alpha1.Deployed{
 				Pod:      "",
@@ -219,9 +296,9 @@ func (b *BuildStage) Deployer(ctx context.Context) (ctrl.Result, error) {
 				Version:  b.Deploy.Status.Built.Version,
 			}
 			err = b.Status().Update(ctx, b.Deploy)
-		}
-		if err != nil {
-			println(err.Error())
+			if err != nil {
+				println(err.Error())
+			}
 		}
 	}
 
@@ -235,6 +312,7 @@ func (b *BuildStage) Route(ctx context.Context) (ctrl.Result, error) {
 	case DEPLOY_STAGE:
 		return b.Deployer(ctx)
 	case SLEEP_STAGE:
+		println("Waiting for buildDeploy changes on " + b.Deploy.Name)
 		return ctrl.Result{RequeueAfter: time.Minute * 60}, nil
 	}
 	return ctrl.Result{RequeueAfter: time.Second * 20}, nil

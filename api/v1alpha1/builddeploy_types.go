@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/apps/v1"
+	v13 "k8s.io/api/batch/v1"
 	v12 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -45,6 +47,12 @@ type DeployParams struct {
 	Volumes   []v12.Volume      `json:"volumes,omitempty"`
 	Namespace string            `json:"namespace,omitempty"`
 	Name      string            `json:"name"`
+
+	HandleContainer int            `json:"handleContainer,omitempty"`
+	Deployment      *v1.Deployment `json:"deployment,omitempty"`
+	CronJob         *v13.CronJob   `json:"cron_job,omitempty"`
+	Job             *v13.Job       `json:"job,omitempty"`
+	DaemonSet       *v1.DaemonSet  `json:"daemon_set,omitempty"`
 }
 
 type BuildDeploySpec struct {
