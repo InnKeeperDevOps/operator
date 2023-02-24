@@ -11,7 +11,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: synload.com
+  domain: innkeeper.com
   group: cicd
   kind: BuildDeploy
   path: github.com/innkeeperdevops/operator/api/v1alpha1
