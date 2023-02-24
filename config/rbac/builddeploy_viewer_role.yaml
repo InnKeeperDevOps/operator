@@ -5,7 +5,7 @@ metadata:
   name: builddeploy-viewer-role
 rules:
 - apiGroups:
-  - cicd.synload.com
+  - cicd.innkeeper.run
   resources:
   - builddeploys
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - cicd.synload.com
+  - cicd.innkeeper.run
   resources:
   - builddeploys/status
   verbs:

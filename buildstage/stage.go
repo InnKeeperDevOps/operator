@@ -21,7 +21,7 @@ type BuildStage struct {
 	Deploy *v1alpha1.BuildDeploy
 }
 
-const latestBuilderImage = "ghcr.io/synload/git-buildah:main"
+const latestBuilderImage = "ghcr.io/innkeeperdevops/git-buildah:main"
 
 func (b *BuildStage) LatestBuilt() bool {
 	if b.Deploy.Status.Built != nil {

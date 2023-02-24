@@ -1,4 +1,4 @@
-domain: synload.com
+domain: innkeeper.run
 layout:
 - go.kubebuilder.io/v3
 plugins:

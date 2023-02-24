@@ -6,7 +6,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - cicd.synload.com
+  - cicd.innkeeper.run
   resources:
   - builddeploys
   verbs:
@@ -18,13 +18,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cicd.synload.com
+  - cicd.innkeeper.run
   resources:
   - builddeploys/finalizers
   verbs:
   - update
 - apiGroups:
-  - cicd.synload.com
+  - cicd.innkeeper.run
   resources:
   - builddeploys/status
   verbs:

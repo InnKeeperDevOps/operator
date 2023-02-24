@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.0
   creationTimestamp: null
-  name: builddeploys.cicd.synload.com
+  name: builddeploys.cicd.innkeeper.run
 spec:
-  group: cicd.synload.com
+  group: cicd.innkeeper.run
   names:
     kind: BuildDeploy
     listKind: BuildDeployList

@@ -28,8 +28,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# synload.com/build-deploy-operator-bundle:$VERSION and synload.com/build-deploy-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= synload.com/build-deploy-operator
+# innkeeper.run/build-deploy-operator-bundle:$VERSION and innkeeper.run/build-deploy-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= innkeeper.run/operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
