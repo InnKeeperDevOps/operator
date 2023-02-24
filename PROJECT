@@ -5,7 +5,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: build-deploy-operator
-repo: github.com/innkeeperdevops/operator
+repo: github.com/InnKeeperDevOps/operator
 resources:
 - api:
     crdVersion: v1
@@ -14,6 +14,6 @@ resources:
   domain: innkeeper.com
   group: cicd
   kind: BuildDeploy
-  path: github.com/innkeeperdevops/operator/api/v1alpha1
+  path: github.com/InnKeeperDevOps/operator/api/v1alpha1
   version: v1alpha1
 version: "3"

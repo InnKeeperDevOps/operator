@@ -1,4 +1,4 @@
-module github.com/innkeeperdevops/operator
+module github.com/InnKeeperDevOps/operator
 
 go 1.18
 
