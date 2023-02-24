@@ -18,7 +18,7 @@ package controllers
 
 import (
 	"context"
-	"github.com/Synload/build-deploy-operator/buildstage"
+	"github.com/innkeeperdevops/operator/buildstage"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"time"
 
@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	cicdv1alpha1 "github.com/Synload/build-deploy-operator/api/v1alpha1"
+	cicdv1alpha1 "github.com/innkeeperdevops/operator/api/v1alpha1"
 )
 
 // BuildDeployReconciler reconciles a BuildDeploy object

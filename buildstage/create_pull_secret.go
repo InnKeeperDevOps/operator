@@ -2,7 +2,7 @@ package buildstage
 
 import (
 	b64 "encoding/base64"
-	cicdv1alpha1 "github.com/Synload/build-deploy-operator/api/v1alpha1"
+	cicdv1alpha1 "github.com/innkeeperdevops/operator/api/v1alpha1"
 	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

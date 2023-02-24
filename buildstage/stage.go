@@ -3,7 +3,7 @@ package buildstage
 import (
 	"context"
 	"errors"
-	"github.com/Synload/build-deploy-operator/api/v1alpha1"
+	"github.com/innkeeperdevops/operator/api/v1alpha1"
 	v12 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"

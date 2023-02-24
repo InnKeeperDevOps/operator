@@ -1,4 +1,4 @@
-module github.com/Synload/build-deploy-operator
+module github.com/innkeeperdevops/operator
 
 go 1.18
 
