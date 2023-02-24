@@ -46,6 +46,12 @@ ifeq ($(USE_IMAGE_DIGESTS), true)
 	BUNDLE_GEN_FLAGS += --use-image-digests
 endif
 
+
+
+USE_MICROK8S ?= false
+ifeq ($(USE_MICROK8S), true)
+  KUBECTL_EXEC = "microk8s"
+endif
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
@@ -132,20 +138,20 @@ endif
 
 .PHONY: install
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
-	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+	$(KUSTOMIZE) build config/crd | $(KUBECTL_EXEC) kubectl apply -f -
 
 .PHONY: uninstall
 uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
-	$(KUSTOMIZE) build config/crd | kubectl delete --ignore-not-found=$(ignore-not-found) -f -
+	$(KUSTOMIZE) build config/crd | $(KUBECTL_EXEC) kubectl delete --ignore-not-found=$(ignore-not-found) -f -
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	$(KUSTOMIZE) build config/default | $(KUBECTL_EXEC) kubectl apply -f -
 
 .PHONY: undeploy
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
-	$(KUSTOMIZE) build config/default | kubectl delete --ignore-not-found=$(ignore-not-found) -f -
+	$(KUSTOMIZE) build config/default | $(KUBECTL_EXEC) kubectl delete --ignore-not-found=$(ignore-not-found) -f -
 
 ##@ Build Dependencies
 
