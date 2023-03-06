@@ -35,10 +35,9 @@ type DockerBuild struct {
 	WorkDir    string `json:"workdir,omitempty"`
 }
 type DockerPublish struct {
-	Secret  string `json:"secret"`
-	Host    string `json:"host"`
-	Tag     string `json:"tag"`
-	Version string `json:"version"`
+	Secret string `json:"secret"`
+	Host   string `json:"host"`
+	Tag    string `json:"tag"`
 }
 
 type DeployParams struct {
@@ -55,11 +54,21 @@ type DeployParams struct {
 	DaemonSet       *v1.DaemonSet  `json:"daemon_set,omitempty"`
 }
 
+type Ingress struct {
+	Name    string            `json:"name"`
+	Domain  string            `json:"domain"`
+	Path    string            `json:"path,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
+	Gateway []string          `json:"gateway"`
+	Port    uint32            `json:"port"`
+}
+
 type BuildDeploySpec struct {
 	Build   DockerBuild   `json:"build,omitempty"`
 	Git     GitDetails    `json:"git"`
 	Publish DockerPublish `json:"publish"`
 	Deploy  *DeployParams `json:"deploy"`
+	Ingress []*Ingress    `json:"ingress,omitempty"`
 }
 
 type RegistryStatus struct {
@@ -79,18 +88,17 @@ type Deployed struct {
 	Git      GitStatus      `json:"git,omitempty"`
 	Complete bool           `json:"complete,omitempty"`
 	Registry RegistryStatus `json:"registry,omitempty"`
-	Version  string         `json:"version,omitempty"`
 }
 type Built struct {
 	Git      GitStatus      `json:"git,omitempty"`
 	Complete bool           `json:"complete,omitempty"`
 	Registry RegistryStatus `json:"registry,omitempty"`
-	Version  string         `json:"version,omitempty"`
 }
 
 type BuildDeployStatus struct {
-	Deployed *Deployed `json:"deployed,omitempty"`
-	Built    *Built    `json:"built,omitempty"`
+	Deployed *Deployed  `json:"deployed,omitempty"`
+	Built    *Built     `json:"built,omitempty"`
+	Ingress  []*Ingress `json:"ingress,omitempty"`
 }
 
 //+kubebuilder:object:root=true

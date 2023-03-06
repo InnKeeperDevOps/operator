@@ -1,0 +1,48 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: build-deploy-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - displayName: Build Deploy
+      kind: BuildDeploy
+      name: builddeploys.cicd.innkeeper.run
+      version: v1alpha1
+  description: builds and deploys docker containers into k8s cluster
+  displayName: builddeploy
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - build
+  - deploy
+  links:
+  - name: Build Deploy Operator
+    url: https://build-deploy-operator.domain
+  maintainers:
+  - email: nathaniel.davidson@gmail.com
+    name: nathaniel
+  maturity: alpha
+  provider:
+    name: Nathaniel
+    url: innkeeper.run
+  version: 0.0.0

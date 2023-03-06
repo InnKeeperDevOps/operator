@@ -19,9 +19,9 @@ package controllers
 import (
 	"context"
 	"github.com/InnKeeperDevOps/operator/buildstage"
+	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"time"
-
 	//appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -29,7 +29,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	cicdv1alpha1 "github.com/InnKeeperDevOps/operator/api/v1alpha1"
 )
@@ -54,14 +53,12 @@ type BuildDeployReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.1/pkg/reconcile
 func (r *BuildDeployReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
-
 	// check namespace for builder
 	namespace := &corev1.Namespace{}
 	err := r.Get(ctx, types.NamespacedName{Name: "git-builder"}, namespace)
 	if err != nil {
-		println(err.Error())
-		println("Creating namespace")
+		log.Error(err.Error())
+		log.Debug("Creating namespace")
 		namespace.Name = "git-builder"
 		r.Create(ctx, namespace)
 	}
@@ -69,14 +66,14 @@ func (r *BuildDeployReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	buildDeploy := &cicdv1alpha1.BuildDeploy{}
 	err = r.Get(ctx, req.NamespacedName, buildDeploy)
 	if err == nil {
-		println("Handling " + buildDeploy.Name)
+		log.Debug("Handling " + buildDeploy.Name)
 		stage := buildstage.BuildStage{Deploy: buildDeploy, Client: r.Client}
 		stage.Route(ctx)
 	} else {
 		// cleanup
 		buildDeploy.Name = req.Name
 		buildDeploy.Namespace = req.Namespace
-		println("deleting jobs for " + req.Name)
+		log.Debug("deleting jobs for " + req.Name)
 		job := &batchv1.Job{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      buildDeploy.GetBuilderName(),
@@ -90,6 +87,8 @@ func (r *BuildDeployReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		if err != nil {
 			println(err.Error())
 		}
+		stage := buildstage.BuildStage{Deploy: buildDeploy, Client: r.Client}
+		stage.Route(ctx)
 		return ctrl.Result{}, nil
 	}
 

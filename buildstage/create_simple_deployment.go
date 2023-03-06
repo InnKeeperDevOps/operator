@@ -35,7 +35,7 @@ func (r *BuildStage) CreateSimpleDeployment() *v1.Deployment {
 					Containers: []v12.Container{{
 						Name:            r.Deploy.Spec.Deploy.Name,
 						Env:             r.Deploy.Spec.Deploy.Env,
-						Image:           r.Deploy.Spec.Publish.Host + "/" + r.Deploy.Spec.Publish.Tag + ":" + r.Deploy.Spec.Publish.Version,
+						Image:           r.Deploy.Spec.Publish.Host + "/" + r.Deploy.Spec.Publish.Tag + ":" + r.Deploy.Status.Built.Git.Commit,
 						VolumeMounts:    r.Deploy.Spec.Deploy.Mounts,
 						ImagePullPolicy: v12.PullAlways,
 					}},

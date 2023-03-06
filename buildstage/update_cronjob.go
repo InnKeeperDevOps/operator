@@ -9,7 +9,7 @@ import (
 
 func (r *BuildStage) MergeCronJobToSpec(cronjob *v1.CronJob) error {
 	err := mergo.Merge(cronjob, r.Deploy.Spec.Deploy.CronJob)
-	cronjob.Spec.JobTemplate.Spec.Template.Spec.Containers[r.Deploy.Spec.Deploy.HandleContainer].Image = r.Deploy.Spec.Publish.Host + "/" + r.Deploy.Spec.Publish.Tag + ":" + r.Deploy.Spec.Publish.Version
+	cronjob.Spec.JobTemplate.Spec.Template.Spec.Containers[r.Deploy.Spec.Deploy.HandleContainer].Image = r.Deploy.Spec.Publish.Host + "/" + r.Deploy.Spec.Publish.Tag + ":" + r.Deploy.Status.Built.Git.Commit
 	exists := false
 	for _, ps := range cronjob.Spec.JobTemplate.Spec.Template.Spec.ImagePullSecrets {
 		if ps.Name == "docker-pull-"+r.Deploy.Spec.Publish.Host {
@@ -26,7 +26,7 @@ func (r *BuildStage) MergeCronJobToSpec(cronjob *v1.CronJob) error {
 
 func (r *BuildStage) CreateCronJob(ctx context.Context) error {
 	cronjob := r.Deploy.Spec.Deploy.CronJob
-	cronjob.Spec.JobTemplate.Spec.Template.Spec.Containers[r.Deploy.Spec.Deploy.HandleContainer].Image = r.Deploy.Spec.Publish.Host + "/" + r.Deploy.Spec.Publish.Tag + ":" + r.Deploy.Spec.Publish.Version
+	cronjob.Spec.JobTemplate.Spec.Template.Spec.Containers[r.Deploy.Spec.Deploy.HandleContainer].Image = r.Deploy.Spec.Publish.Host + "/" + r.Deploy.Spec.Publish.Tag + ":" + r.Deploy.Status.Built.Git.Commit
 	exists := false
 	for _, ps := range cronjob.Spec.JobTemplate.Spec.Template.Spec.ImagePullSecrets {
 		if ps.Name == "docker-pull-"+r.Deploy.Spec.Publish.Host {

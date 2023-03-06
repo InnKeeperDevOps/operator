@@ -18,6 +18,5 @@ func (r *BuildStage) CreatePullSecret(deploy *cicdv1alpha1.BuildDeploy, username
 		},
 		Data: map[string][]byte{v12.DockerConfigJsonKey: []byte(dockerAuth)},
 	}
-	println(dockerAuth)
 	return secret
 }

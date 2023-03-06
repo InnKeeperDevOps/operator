@@ -25,10 +25,6 @@ func (r *BuildStage) createBuildJob(deploy *v1alpha1.BuildDeploy) *batchv1.Job {
 			Name:  "DOCKER_TAG",
 			Value: deploy.Spec.Publish.Tag,
 		},
-		{
-			Name:  "DOCKER_VERSION",
-			Value: deploy.Spec.Publish.Version,
-		},
 	}
 
 	if deploy.Spec.Publish.Secret != "" {
@@ -100,6 +96,14 @@ func (r *BuildStage) createBuildJob(deploy *v1alpha1.BuildDeploy) *batchv1.Job {
 			ReadOnly:  false,
 		})
 	}
+
+	securityContext := corev1.PodSecurityContext{
+		SeccompProfile: &corev1.SeccompProfile{
+			Type: corev1.SeccompProfileTypeUnconfined,
+		},
+	}
+	true := true
+
 	return &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      deploy.GetBuilderName(),
@@ -116,10 +120,15 @@ func (r *BuildStage) createBuildJob(deploy *v1alpha1.BuildDeploy) *batchv1.Job {
 					},
 				},
 				Spec: corev1.PodSpec{
-					Volumes: volumes,
+					SecurityContext: &securityContext,
+					Volumes:         volumes,
 					Containers: []corev1.Container{{
+						SecurityContext: &corev1.SecurityContext{
+							AllowPrivilegeEscalation: &true,
+							Privileged:               &true,
+						},
 						Name:            deploy.GetBuilderName(),
-						Image:           latestBuilderImage,
+						Image:           LatestBuilderImage,
 						ImagePullPolicy: corev1.PullAlways,
 						VolumeMounts:    volumeMounts,
 						Env:             envars,

@@ -43,6 +43,23 @@ spec:
                       kind:
                         type: string
                       metadata:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          finalizers:
+                            items:
+                              type: string
+                            type: array
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          name:
+                            type: string
+                          namespace:
+                            type: string
                         type: object
                       spec:
                         properties:
@@ -54,6 +71,23 @@ spec:
                           jobTemplate:
                             properties:
                               metadata:
+                                properties:
+                                  annotations:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  finalizers:
+                                    items:
+                                      type: string
+                                    type: array
+                                  labels:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
                                 type: object
                               spec:
                                 properties:
@@ -73,6 +107,51 @@ spec:
                                   parallelism:
                                     format: int32
                                     type: integer
+                                  podFailurePolicy:
+                                    properties:
+                                      rules:
+                                        items:
+                                          properties:
+                                            action:
+                                              type: string
+                                            onExitCodes:
+                                              properties:
+                                                containerName:
+                                                  type: string
+                                                operator:
+                                                  type: string
+                                                values:
+                                                  items:
+                                                    format: int32
+                                                    type: integer
+                                                  type: array
+                                                  x-kubernetes-list-type: set
+                                              required:
+                                              - operator
+                                              - values
+                                              type: object
+                                            onPodConditions:
+                                              items:
+                                                properties:
+                                                  status:
+                                                    type: string
+                                                  type:
+                                                    type: string
+                                                required:
+                                                - status
+                                                - type
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-type: atomic
+                                          required:
+                                          - action
+                                          - onPodConditions
+                                          type: object
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                    required:
+                                    - rules
+                                    type: object
                                   selector:
                                     properties:
                                       matchExpressions:
@@ -101,6 +180,23 @@ spec:
                                   template:
                                     properties:
                                       metadata:
+                                        properties:
+                                          annotations:
+                                            additionalProperties:
+                                              type: string
+                                            type: object
+                                          finalizers:
+                                            items:
+                                              type: string
+                                            type: array
+                                          labels:
+                                            additionalProperties:
+                                              type: string
+                                            type: object
+                                          name:
+                                            type: string
+                                          namespace:
+                                            type: string
                                         type: object
                                       spec:
                                         properties:
@@ -846,6 +942,18 @@ spec:
                                                   type: object
                                                 resources:
                                                   properties:
+                                                    claims:
+                                                      items:
+                                                        properties:
+                                                          name:
+                                                            type: string
+                                                        required:
+                                                        - name
+                                                        type: object
+                                                      type: array
+                                                      x-kubernetes-list-map-keys:
+                                                      - name
+                                                      x-kubernetes-list-type: map
                                                     limits:
                                                       additionalProperties:
                                                         anyOf:
@@ -1457,6 +1565,18 @@ spec:
                                                   type: object
                                                 resources:
                                                   properties:
+                                                    claims:
+                                                      items:
+                                                        properties:
+                                                          name:
+                                                            type: string
+                                                        required:
+                                                        - name
+                                                        type: object
+                                                      type: array
+                                                      x-kubernetes-list-map-keys:
+                                                      - name
+                                                      x-kubernetes-list-type: map
                                                     limits:
                                                       additionalProperties:
                                                         anyOf:
@@ -1679,6 +1799,8 @@ spec:
                                           hostNetwork:
                                             type: boolean
                                           hostPID:
+                                            type: boolean
+                                          hostUsers:
                                             type: boolean
                                           hostname:
                                             type: string
@@ -2072,6 +2194,18 @@ spec:
                                                   type: object
                                                 resources:
                                                   properties:
+                                                    claims:
+                                                      items:
+                                                        properties:
+                                                          name:
+                                                            type: string
+                                                        required:
+                                                        - name
+                                                        type: object
+                                                      type: array
+                                                      x-kubernetes-list-map-keys:
+                                                      - name
+                                                      x-kubernetes-list-type: map
                                                     limits:
                                                       additionalProperties:
                                                         anyOf:
@@ -2314,12 +2448,43 @@ spec:
                                               - conditionType
                                               type: object
                                             type: array
+                                          resourceClaims:
+                                            items:
+                                              properties:
+                                                name:
+                                                  type: string
+                                                source:
+                                                  properties:
+                                                    resourceClaimName:
+                                                      type: string
+                                                    resourceClaimTemplateName:
+                                                      type: string
+                                                  type: object
+                                              required:
+                                              - name
+                                              type: object
+                                            type: array
+                                            x-kubernetes-list-map-keys:
+                                            - name
+                                            x-kubernetes-list-type: map
                                           restartPolicy:
                                             type: string
                                           runtimeClassName:
                                             type: string
                                           schedulerName:
                                             type: string
+                                          schedulingGates:
+                                            items:
+                                              properties:
+                                                name:
+                                                  type: string
+                                              required:
+                                              - name
+                                              type: object
+                                            type: array
+                                            x-kubernetes-list-map-keys:
+                                            - name
+                                            x-kubernetes-list-type: map
                                           securityContext:
                                             properties:
                                               fsGroup:
@@ -2439,12 +2604,21 @@ spec:
                                                         type: string
                                                       type: object
                                                   type: object
+                                                matchLabelKeys:
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                                  x-kubernetes-list-type: atomic
                                                 maxSkew:
                                                   format: int32
                                                   type: integer
                                                 minDomains:
                                                   format: int32
                                                   type: integer
+                                                nodeAffinityPolicy:
+                                                  type: string
+                                                nodeTaintsPolicy:
+                                                  type: string
                                                 topologyKey:
                                                   type: string
                                                 whenUnsatisfiable:
@@ -2647,6 +2821,23 @@ spec:
                                                     volumeClaimTemplate:
                                                       properties:
                                                         metadata:
+                                                          properties:
+                                                            annotations:
+                                                              additionalProperties:
+                                                                type: string
+                                                              type: object
+                                                            finalizers:
+                                                              items:
+                                                                type: string
+                                                              type: array
+                                                            labels:
+                                                              additionalProperties:
+                                                                type: string
+                                                              type: object
+                                                            name:
+                                                              type: string
+                                                            namespace:
+                                                              type: string
                                                           type: object
                                                         spec:
                                                           properties:
@@ -2674,12 +2865,26 @@ spec:
                                                                   type: string
                                                                 name:
                                                                   type: string
+                                                                namespace:
+                                                                  type: string
                                                               required:
                                                               - kind
                                                               - name
                                                               type: object
                                                             resources:
                                                               properties:
+                                                                claims:
+                                                                  items:
+                                                                    properties:
+                                                                      name:
+                                                                        type: string
+                                                                    required:
+                                                                    - name
+                                                                    type: object
+                                                                  type: array
+                                                                  x-kubernetes-list-map-keys:
+                                                                  - name
+                                                                  x-kubernetes-list-type: map
                                                                 limits:
                                                                   additionalProperties:
                                                                     anyOf:
@@ -3203,6 +3408,23 @@ spec:
                       kind:
                         type: string
                       metadata:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          finalizers:
+                            items:
+                              type: string
+                            type: array
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          name:
+                            type: string
+                          namespace:
+                            type: string
                         type: object
                       spec:
                         properties:
@@ -3238,6 +3460,23 @@ spec:
                           template:
                             properties:
                               metadata:
+                                properties:
+                                  annotations:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  finalizers:
+                                    items:
+                                      type: string
+                                    type: array
+                                  labels:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
                                 type: object
                               spec:
                                 properties:
@@ -3983,6 +4222,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -4594,6 +4845,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -4816,6 +5079,8 @@ spec:
                                   hostNetwork:
                                     type: boolean
                                   hostPID:
+                                    type: boolean
+                                  hostUsers:
                                     type: boolean
                                   hostname:
                                     type: string
@@ -5209,6 +5474,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -5451,12 +5728,43 @@ spec:
                                       - conditionType
                                       type: object
                                     type: array
+                                  resourceClaims:
+                                    items:
+                                      properties:
+                                        name:
+                                          type: string
+                                        source:
+                                          properties:
+                                            resourceClaimName:
+                                              type: string
+                                            resourceClaimTemplateName:
+                                              type: string
+                                          type: object
+                                      required:
+                                      - name
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - name
+                                    x-kubernetes-list-type: map
                                   restartPolicy:
                                     type: string
                                   runtimeClassName:
                                     type: string
                                   schedulerName:
                                     type: string
+                                  schedulingGates:
+                                    items:
+                                      properties:
+                                        name:
+                                          type: string
+                                      required:
+                                      - name
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - name
+                                    x-kubernetes-list-type: map
                                   securityContext:
                                     properties:
                                       fsGroup:
@@ -5576,12 +5884,21 @@ spec:
                                                 type: string
                                               type: object
                                           type: object
+                                        matchLabelKeys:
+                                          items:
+                                            type: string
+                                          type: array
+                                          x-kubernetes-list-type: atomic
                                         maxSkew:
                                           format: int32
                                           type: integer
                                         minDomains:
                                           format: int32
                                           type: integer
+                                        nodeAffinityPolicy:
+                                          type: string
+                                        nodeTaintsPolicy:
+                                          type: string
                                         topologyKey:
                                           type: string
                                         whenUnsatisfiable:
@@ -5784,6 +6101,23 @@ spec:
                                             volumeClaimTemplate:
                                               properties:
                                                 metadata:
+                                                  properties:
+                                                    annotations:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                    finalizers:
+                                                      items:
+                                                        type: string
+                                                      type: array
+                                                    labels:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                    name:
+                                                      type: string
+                                                    namespace:
+                                                      type: string
                                                   type: object
                                                 spec:
                                                   properties:
@@ -5811,12 +6145,26 @@ spec:
                                                           type: string
                                                         name:
                                                           type: string
+                                                        namespace:
+                                                          type: string
                                                       required:
                                                       - kind
                                                       - name
                                                       type: object
                                                     resources:
                                                       properties:
+                                                        claims:
+                                                          items:
+                                                            properties:
+                                                              name:
+                                                                type: string
+                                                            required:
+                                                            - name
+                                                            type: object
+                                                          type: array
+                                                          x-kubernetes-list-map-keys:
+                                                          - name
+                                                          x-kubernetes-list-type: map
                                                         limits:
                                                           additionalProperties:
                                                             anyOf:
@@ -6364,6 +6712,23 @@ spec:
                       kind:
                         type: string
                       metadata:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          finalizers:
+                            items:
+                              type: string
+                            type: array
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          name:
+                            type: string
+                          namespace:
+                            type: string
                         type: object
                       spec:
                         properties:
@@ -6425,6 +6790,23 @@ spec:
                           template:
                             properties:
                               metadata:
+                                properties:
+                                  annotations:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  finalizers:
+                                    items:
+                                      type: string
+                                    type: array
+                                  labels:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
                                 type: object
                               spec:
                                 properties:
@@ -7170,6 +7552,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -7781,6 +8175,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -8003,6 +8409,8 @@ spec:
                                   hostNetwork:
                                     type: boolean
                                   hostPID:
+                                    type: boolean
+                                  hostUsers:
                                     type: boolean
                                   hostname:
                                     type: string
@@ -8396,6 +8804,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -8638,12 +9058,43 @@ spec:
                                       - conditionType
                                       type: object
                                     type: array
+                                  resourceClaims:
+                                    items:
+                                      properties:
+                                        name:
+                                          type: string
+                                        source:
+                                          properties:
+                                            resourceClaimName:
+                                              type: string
+                                            resourceClaimTemplateName:
+                                              type: string
+                                          type: object
+                                      required:
+                                      - name
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - name
+                                    x-kubernetes-list-type: map
                                   restartPolicy:
                                     type: string
                                   runtimeClassName:
                                     type: string
                                   schedulerName:
                                     type: string
+                                  schedulingGates:
+                                    items:
+                                      properties:
+                                        name:
+                                          type: string
+                                      required:
+                                      - name
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - name
+                                    x-kubernetes-list-type: map
                                   securityContext:
                                     properties:
                                       fsGroup:
@@ -8763,12 +9214,21 @@ spec:
                                                 type: string
                                               type: object
                                           type: object
+                                        matchLabelKeys:
+                                          items:
+                                            type: string
+                                          type: array
+                                          x-kubernetes-list-type: atomic
                                         maxSkew:
                                           format: int32
                                           type: integer
                                         minDomains:
                                           format: int32
                                           type: integer
+                                        nodeAffinityPolicy:
+                                          type: string
+                                        nodeTaintsPolicy:
+                                          type: string
                                         topologyKey:
                                           type: string
                                         whenUnsatisfiable:
@@ -8971,6 +9431,23 @@ spec:
                                             volumeClaimTemplate:
                                               properties:
                                                 metadata:
+                                                  properties:
+                                                    annotations:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                    finalizers:
+                                                      items:
+                                                        type: string
+                                                      type: array
+                                                    labels:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                    name:
+                                                      type: string
+                                                    namespace:
+                                                      type: string
                                                   type: object
                                                 spec:
                                                   properties:
@@ -8998,12 +9475,26 @@ spec:
                                                           type: string
                                                         name:
                                                           type: string
+                                                        namespace:
+                                                          type: string
                                                       required:
                                                       - kind
                                                       - name
                                                       type: object
                                                     resources:
                                                       properties:
+                                                        claims:
+                                                          items:
+                                                            properties:
+                                                              name:
+                                                                type: string
+                                                            required:
+                                                            - name
+                                                            type: object
+                                                          type: array
+                                                          x-kubernetes-list-map-keys:
+                                                          - name
+                                                          x-kubernetes-list-type: map
                                                         limits:
                                                           additionalProperties:
                                                             anyOf:
@@ -9587,6 +10078,23 @@ spec:
                       kind:
                         type: string
                       metadata:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          finalizers:
+                            items:
+                              type: string
+                            type: array
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          name:
+                            type: string
+                          namespace:
+                            type: string
                         type: object
                       spec:
                         properties:
@@ -9606,6 +10114,51 @@ spec:
                           parallelism:
                             format: int32
                             type: integer
+                          podFailurePolicy:
+                            properties:
+                              rules:
+                                items:
+                                  properties:
+                                    action:
+                                      type: string
+                                    onExitCodes:
+                                      properties:
+                                        containerName:
+                                          type: string
+                                        operator:
+                                          type: string
+                                        values:
+                                          items:
+                                            format: int32
+                                            type: integer
+                                          type: array
+                                          x-kubernetes-list-type: set
+                                      required:
+                                      - operator
+                                      - values
+                                      type: object
+                                    onPodConditions:
+                                      items:
+                                        properties:
+                                          status:
+                                            type: string
+                                          type:
+                                            type: string
+                                        required:
+                                        - status
+                                        - type
+                                        type: object
+                                      type: array
+                                      x-kubernetes-list-type: atomic
+                                  required:
+                                  - action
+                                  - onPodConditions
+                                  type: object
+                                type: array
+                                x-kubernetes-list-type: atomic
+                            required:
+                            - rules
+                            type: object
                           selector:
                             properties:
                               matchExpressions:
@@ -9634,6 +10187,23 @@ spec:
                           template:
                             properties:
                               metadata:
+                                properties:
+                                  annotations:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  finalizers:
+                                    items:
+                                      type: string
+                                    type: array
+                                  labels:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
                                 type: object
                               spec:
                                 properties:
@@ -10379,6 +10949,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -10990,6 +11572,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -11212,6 +11806,8 @@ spec:
                                   hostNetwork:
                                     type: boolean
                                   hostPID:
+                                    type: boolean
+                                  hostUsers:
                                     type: boolean
                                   hostname:
                                     type: string
@@ -11605,6 +12201,18 @@ spec:
                                           type: object
                                         resources:
                                           properties:
+                                            claims:
+                                              items:
+                                                properties:
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - name
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-map-keys:
+                                              - name
+                                              x-kubernetes-list-type: map
                                             limits:
                                               additionalProperties:
                                                 anyOf:
@@ -11847,12 +12455,43 @@ spec:
                                       - conditionType
                                       type: object
                                     type: array
+                                  resourceClaims:
+                                    items:
+                                      properties:
+                                        name:
+                                          type: string
+                                        source:
+                                          properties:
+                                            resourceClaimName:
+                                              type: string
+                                            resourceClaimTemplateName:
+                                              type: string
+                                          type: object
+                                      required:
+                                      - name
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - name
+                                    x-kubernetes-list-type: map
                                   restartPolicy:
                                     type: string
                                   runtimeClassName:
                                     type: string
                                   schedulerName:
                                     type: string
+                                  schedulingGates:
+                                    items:
+                                      properties:
+                                        name:
+                                          type: string
+                                      required:
+                                      - name
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - name
+                                    x-kubernetes-list-type: map
                                   securityContext:
                                     properties:
                                       fsGroup:
@@ -11972,12 +12611,21 @@ spec:
                                                 type: string
                                               type: object
                                           type: object
+                                        matchLabelKeys:
+                                          items:
+                                            type: string
+                                          type: array
+                                          x-kubernetes-list-type: atomic
                                         maxSkew:
                                           format: int32
                                           type: integer
                                         minDomains:
                                           format: int32
                                           type: integer
+                                        nodeAffinityPolicy:
+                                          type: string
+                                        nodeTaintsPolicy:
+                                          type: string
                                         topologyKey:
                                           type: string
                                         whenUnsatisfiable:
@@ -12180,6 +12828,23 @@ spec:
                                             volumeClaimTemplate:
                                               properties:
                                                 metadata:
+                                                  properties:
+                                                    annotations:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                    finalizers:
+                                                      items:
+                                                        type: string
+                                                      type: array
+                                                    labels:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                    name:
+                                                      type: string
+                                                    namespace:
+                                                      type: string
                                                   type: object
                                                 spec:
                                                   properties:
@@ -12207,12 +12872,26 @@ spec:
                                                           type: string
                                                         name:
                                                           type: string
+                                                        namespace:
+                                                          type: string
                                                       required:
                                                       - kind
                                                       - name
                                                       type: object
                                                     resources:
                                                       properties:
+                                                        claims:
+                                                          items:
+                                                            properties:
+                                                              name:
+                                                                type: string
+                                                            required:
+                                                            - name
+                                                            type: object
+                                                          type: array
+                                                          x-kubernetes-list-map-keys:
+                                                          - name
+                                                          x-kubernetes-list-type: map
                                                         limits:
                                                           additionalProperties:
                                                             anyOf:
@@ -12954,6 +13633,23 @@ spec:
                             volumeClaimTemplate:
                               properties:
                                 metadata:
+                                  properties:
+                                    annotations:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    finalizers:
+                                      items:
+                                        type: string
+                                      type: array
+                                    labels:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
                                   type: object
                                 spec:
                                   properties:
@@ -12981,12 +13677,26 @@ spec:
                                           type: string
                                         name:
                                           type: string
+                                        namespace:
+                                          type: string
                                       required:
                                       - kind
                                       - name
                                       type: object
                                     resources:
                                       properties:
+                                        claims:
+                                          items:
+                                            properties:
+                                              name:
+                                                type: string
+                                            required:
+                                            - name
+                                            type: object
+                                          type: array
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -13462,6 +14172,33 @@ spec:
                 required:
                 - uri
                 type: object
+              ingress:
+                items:
+                  properties:
+                    domain:
+                      type: string
+                    gateway:
+                      items:
+                        type: string
+                      type: array
+                    headers:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    name:
+                      type: string
+                    path:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                  required:
+                  - domain
+                  - gateway
+                  - name
+                  - port
+                  type: object
+                type: array
               publish:
                 properties:
                   host:
@@ -13470,13 +14207,10 @@ spec:
                     type: string
                   tag:
                     type: string
-                  version:
-                    type: string
                 required:
                 - host
                 - secret
                 - tag
-                - version
                 type: object
             required:
             - deploy
@@ -13507,8 +14241,6 @@ spec:
                       tag:
                         type: string
                     type: object
-                  version:
-                    type: string
                 type: object
               deployed:
                 properties:
@@ -13534,9 +14266,34 @@ spec:
                       tag:
                         type: string
                     type: object
-                  version:
-                    type: string
                 type: object
+              ingress:
+                items:
+                  properties:
+                    domain:
+                      type: string
+                    gateway:
+                      items:
+                        type: string
+                      type: array
+                    headers:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    name:
+                      type: string
+                    path:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                  required:
+                  - domain
+                  - gateway
+                  - name
+                  - port
+                  type: object
+                type: array
             type: object
         type: object
     served: true
